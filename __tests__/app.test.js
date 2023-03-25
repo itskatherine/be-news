@@ -4,6 +4,8 @@ const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
 const app = require("../app");
 
+require("jest-sorted");
+
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
@@ -42,9 +44,10 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("200: should return an object on the key of article, with correct keys", () => {
+  test("200: should return an article with the correct id on the key of article, with correct keys", () => {
+    const id = 1;
     return request(app)
-      .get("/api/articles/1")
+      .get(`/api/articles/${id}`)
       .expect(200)
       .then(({ body }) => {
         const { article } = body;
@@ -52,7 +55,7 @@ describe("GET /api/articles/:article_id", () => {
         expect(article).toMatchObject({
           author: expect.any(String),
           title: expect.any(String),
-          article_id: expect.any(Number),
+          article_id: id,
           body: expect.any(String),
           topic: expect.any(String),
           created_at: expect.any(String),
@@ -75,6 +78,38 @@ describe("GET /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body).toEqual({ msg: "Article not found" });
+      });
+  });
+});
+
+describe("GET /api/articles", () => {
+  test("200: should return an array of articles, with correct keys", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toHaveLength(testData.articleData.length);
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("200: returned articles should be in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(testData.articleData.length);
+        expect(articles).toBeSorted({ key: "created_at", descending: true });
       });
   });
 });
