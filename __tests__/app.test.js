@@ -113,3 +113,59 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
+describe("GET /api/articles/:comment_id/comments", () => {
+  test("200: should return an array of comments on the key of comments with the correct keys", () => {
+    const article_id = 1;
+    const commentDataCopy = [...testData.commentData].map((elem) => {
+      return { ...elem };
+    });
+    const commentsWithArticleId = commentDataCopy.filter(
+      (comment) => comment.article_id === article_id
+    );
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments).toHaveLength(commentsWithArticleId.length);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("400: returns 400 and error message when invalid article id provided", () => {
+    const article_id = "katherine";
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Bad request" });
+      });
+  });
+  test("404: valid but non-existant article id", () => {
+    const article_id = 100000;
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Article not found" });
+      });
+  });
+  test("200: valid article id but article has no comments (like article 2)", () => {
+    const article_id = 2;
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toEqual([]);
+      });
+  });
+});
