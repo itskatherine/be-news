@@ -8,6 +8,7 @@ const fetchCommentsByArticleId = (article_id) => {
       `
       SELECT * FROM comments
       WHERE article_id = %L
+      ORDER BY created_at ASC;
       `,
       [article_id]
     );

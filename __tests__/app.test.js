@@ -115,7 +115,7 @@ describe("GET /api/articles", () => {
 });
 
 describe("GET /api/articles/:comment_id/comments", () => {
-  test("200: should return an array of comments on the key of comments with the correct keys", () => {
+  test("200: should return an array of comments on the key of comments with the correct keys, sorted by earliest first", () => {
     const article_id = 1;
     const commentDataCopy = [...testData.commentData].map((elem) => {
       return { ...elem };
@@ -139,8 +139,10 @@ describe("GET /api/articles/:comment_id/comments", () => {
             article_id: expect.any(Number),
           });
         });
+        expect(comments).toBeSorted({ key: "created_at", descending: false });
       });
   });
+
   test("400: returns 400 and error message when invalid article id provided", () => {
     const article_id = "katherine";
     return request(app)
