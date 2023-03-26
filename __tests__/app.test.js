@@ -172,20 +172,75 @@ describe("GET /api/articles/:comment_id/comments", () => {
   });
 });
 
-// describe("POST /api/articles/:article_id/comments", () => {
-//   test("201: should respond with the posted comment, when given valid comment", () => {
-//     const articleToPostCommentTo = 3;
-//     const comment = { username: "lurker", body: "KATHERINE" };
-//     return request(app)
-//       .post(`/api/articles/${articleToPostCommentTo}/comments`)
-//       .send(comment)
-//       .then(({ body: { comment } }) => {
-//         expect(comment).toMatchObject({
-//           comment_id: expect.any(Number),
-//           username: expect.any(String),
-//           body: expect.any(String),
-//         });
-//       });
-//   });
-//   test.todo("201: comment should be added to the article's comments in db");
-// });
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: should respond with the posted comment, when given valid comment", () => {
+    const articleToPostCommentTo = 3;
+    const comment = { username: "lurker", body: "KATHERINE" };
+    return request(app)
+      .post(`/api/articles/${articleToPostCommentTo}/comments`)
+      .send(comment)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          comment_id: expect.any(Number),
+          username: expect.any(String),
+          body: expect.any(String),
+        });
+      });
+  });
+  test("201: comment should be added to the article's comments in db", () => {
+    const articleToPostCommentTo = 3;
+    const comment = { username: "lurker", body: "KATHERINE" };
+    const commentDataCopy = [...testData.commentData].map((elem) => {
+      return { ...elem };
+    });
+    const commentsWithArticleId = commentDataCopy.filter(
+      (comment) => comment.article_id === articleToPostCommentTo
+    );
+    return request(app)
+      .post(`/api/articles/${articleToPostCommentTo}/comments`)
+      .send(comment)
+      .then(() => {
+        return request(app)
+          .get(`/api/articles/${articleToPostCommentTo}/comments`)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBe(commentsWithArticleId.length + 1);
+          });
+      });
+  });
+  // test("404: if valid but non existant article id provided", () => {
+  //   const comment = { username: "lurker", body: "KATHERINE" };
+  //   return request(app)
+  //     .post(`/api/articles/10000000/comments`)
+  //     .send(comment)
+  //     .then(({ body }) => {
+  //       expect(body).toEqual({ msg: "Article not found" });
+  //     });
+  // });
+  test("400: if non-valid article id provided", () => {
+    const comment = { username: "lurker", body: "KATHERINE" };
+    return request(app)
+      .post(`/api/articles/katherine/comments`)
+      .send(comment)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Bad request" });
+      });
+  });
+  test("400 if invalid comment object provided", () => {
+    const comment = {};
+    return request(app)
+      .post(`/api/articles/2/comments`)
+      .send(comment)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Bad request" });
+      });
+  });
+  test("400 if invalid username object provided", () => {
+    const comment = { username: "KATHERINE", body: "KATHERINE" };
+    return request(app)
+      .post(`/api/articles/2/comments`)
+      .send(comment)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Bad request" });
+      });
+  });
+});

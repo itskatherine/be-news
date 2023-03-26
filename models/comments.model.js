@@ -3,8 +3,24 @@ const format = require("pg-format");
 const { fetchArticleById } = require("./articles.model");
 
 const addCommentByArticleId = (article_id, username, body) => {
+  const queryString = format(
+    `
+    INSERT INTO comments 
+    (body, article_id, author)
+    VALUES
+    %L
+    RETURNING *;
+  `,
+    [[body, article_id, username]]
+  );
 
-    
+  return db.query(queryString).then(({ rows }) => {
+    const comment = rows[0];
+    const correctedComment = { ...comment };
+    correctedComment.username = comment.author;
+    delete correctedComment.author;
+    return correctedComment;
+  });
 };
 
 const fetchCommentsByArticleId = (article_id) => {
@@ -23,4 +39,4 @@ const fetchCommentsByArticleId = (article_id) => {
   });
 };
 
-module.exports = { fetchCommentsByArticleId };
+module.exports = { fetchCommentsByArticleId, addCommentByArticleId };
