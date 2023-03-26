@@ -2,6 +2,11 @@ const db = require("../db/connection");
 const format = require("pg-format");
 const { fetchArticleById } = require("./articles.model");
 
+const addCommentByArticleId = (article_id, username, body) => {
+
+    
+};
+
 const fetchCommentsByArticleId = (article_id) => {
   return fetchArticleById(article_id).then(() => {
     const queryString = format(

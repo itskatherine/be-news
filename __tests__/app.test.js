@@ -171,3 +171,21 @@ describe("GET /api/articles/:comment_id/comments", () => {
       });
   });
 });
+
+// describe("POST /api/articles/:article_id/comments", () => {
+//   test("201: should respond with the posted comment, when given valid comment", () => {
+//     const articleToPostCommentTo = 3;
+//     const comment = { username: "lurker", body: "KATHERINE" };
+//     return request(app)
+//       .post(`/api/articles/${articleToPostCommentTo}/comments`)
+//       .send(comment)
+//       .then(({ body: { comment } }) => {
+//         expect(comment).toMatchObject({
+//           comment_id: expect.any(Number),
+//           username: expect.any(String),
+//           body: expect.any(String),
+//         });
+//       });
+//   });
+//   test.todo("201: comment should be added to the article's comments in db");
+// });
