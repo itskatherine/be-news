@@ -25,15 +25,13 @@ const addCommentByArticleId = (article_id, username, body) => {
 
 const fetchCommentsByArticleId = (article_id) => {
   return fetchArticleById(article_id).then(() => {
-    const queryString = format(
-      `
+    const queryString = `
       SELECT * FROM comments
-      WHERE article_id = %L
+      WHERE article_id = $1
       ORDER BY created_at ASC;
-      `,
-      [article_id]
-    );
-    return db.query(queryString).then(({ rows: comments }) => {
+      `;
+
+    return db.query(queryString, [article_id]).then(({ rows: comments }) => {
       return comments;
     });
   });

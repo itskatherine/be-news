@@ -74,7 +74,7 @@ describe("GET /api/articles/:article_id", () => {
   });
   test("404: should return 404 and error message when given valid but nonexistant id", () => {
     return request(app)
-      .get("/api/articles/10000000")
+      .get("/api/articles/1000")
       .expect(404)
       .then(({ body }) => {
         expect(body).toEqual({ msg: "Article not found" });
