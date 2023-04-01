@@ -244,3 +244,70 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("should return patched article with updated votes", () => {
+    const articleToPatch = 1; //current votes 100
+    const patchObj = { inc_votes: 1 };
+    return request(app)
+      .patch(`/api/articles/${articleToPatch}`)
+      .send(patchObj)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: articleToPatch,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: 101,
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+  test("404: article not found", () => {
+    const articleToPatch = 10000;
+    const patchObj = { inc_votes: 1 };
+    return request(app)
+      .patch(`/api/articles/${articleToPatch}`)
+      .send(patchObj)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("400: invalid article ", () => {
+    const articleToPatch = "katherine";
+    const patchObj = { inc_votes: 1 };
+    return request(app)
+      .patch(`/api/articles/${articleToPatch}`)
+      .send(patchObj)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400: Bad request when an invalid comment provided", () => {
+    const articleToPatch = 1; //current votes 100
+    const patchObj = {};
+    return request(app)
+      .patch(`/api/articles/${articleToPatch}`)
+      .send(patchObj)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400: Bad request when invalid inc_votes provided", () => {
+    const articleToPatch = 1; //current votes 100
+    const patchObj = { inc_votes: "katherine" };
+    return request(app)
+      .patch(`/api/articles/${articleToPatch}`)
+      .send(patchObj)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});

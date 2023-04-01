@@ -33,4 +33,21 @@ const fetchArticleById = (article_id) => {
   });
 };
 
-module.exports = { fetchArticleById, fetchArticles };
+const updateArticle = (inc_votes, article_id) => {
+  const queryString = `
+  UPDATE articles
+  SET
+  votes = votes + $1
+  WHERE article_id = $2
+  RETURNING *;
+  `;
+  return db.query(queryString, [inc_votes, article_id]).then(({ rows }) => {
+    const patchedArticle = rows[0];
+    if (!patchedArticle) {
+      return Promise.reject({ status: 404, msg: "Article not found" });
+    }
+    return patchedArticle;
+  });
+};
+
+module.exports = { updateArticle, fetchArticleById, fetchArticles };
