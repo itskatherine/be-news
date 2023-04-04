@@ -20,24 +20,22 @@ const removeComment = (comment_id) => {
 };
 
 const addCommentByArticleId = (article_id, username, body) => {
-  const queryString = format(
-    `
+  const queryString = `
     INSERT INTO comments 
     (body, article_id, author)
     VALUES
-    %L
+    ($1,$2,$3)
     RETURNING *;
-  `,
-    [[body, article_id, username]]
-  );
-
-  return db.query(queryString).then(({ rows }) => {
-    const comment = rows[0];
-    const correctedComment = { ...comment };
-    correctedComment.username = comment.author;
-    delete correctedComment.author;
-    return correctedComment;
-  });
+  `;
+  return db
+    .query(queryString, [body, article_id, username])
+    .then(({ rows }) => {
+      const comment = rows[0];
+      const correctedComment = { ...comment };
+      correctedComment.username = comment.author;
+      delete correctedComment.author;
+      return correctedComment;
+    });
 };
 
 const fetchCommentsByArticleId = (article_id) => {

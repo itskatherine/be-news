@@ -207,15 +207,15 @@ describe("POST /api/articles/:article_id/comments", () => {
           });
       });
   });
-  // test("404: if valid but non existant article id provided", () => {
-  //   const comment = { username: "lurker", body: "KATHERINE" };
-  //   return request(app)
-  //     .post(`/api/articles/10000000/comments`)
-  //     .send(comment)
-  //     .then(({ body }) => {
-  //       expect(body).toEqual({ msg: "Article not found" });
-  //     });
-  // });
+  test("404: if valid but non existant article id provided", () => {
+    const comment = { username: "lurker", body: "KATHERINE" };
+    return request(app)
+      .post(`/api/articles/10000000/comments`)
+      .send(comment)
+      .then(({ body }) => {
+        expect(body).toEqual({ msg: "Article not found" });
+      });
+  });
   test("400: if non-valid article id provided", () => {
     const comment = { username: "lurker", body: "KATHERINE" };
     return request(app)
