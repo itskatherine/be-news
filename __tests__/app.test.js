@@ -449,7 +449,7 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
   });
 });
 
-describe.only("GET /api", () => {
+describe("GET /api", () => {
   test("200: should return endpoints object", () => {
     return request(app)
       .get("/api")
