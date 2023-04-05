@@ -43,14 +43,15 @@ const fetchArticles = (topic, sort_by = "created_at", order = "DESC") => {
 };
 
 const fetchArticleById = (article_id) => {
-  const queryString = format(
-    `
-    SELECT * FROM articles
-    WHERE article_id = %L
-    `,
-    [article_id]
-  );
-  return db.query(queryString).then(({ rows: articles }) => {
+  const queryString = `
+  SELECT articles.*, CAST(COUNT(comment_id) AS INT) AS comment_count
+  FROM articles
+  LEFT JOIN comments ON articles.article_id = comments.article_id
+  WHERE articles.article_id = $1
+  GROUP BY articles.article_id;
+    `;
+
+  return db.query(queryString, [article_id]).then(({ rows: articles }) => {
     if (articles.length === 0) {
       return Promise.reject({ status: 404, msg: "Article not found" });
     }

@@ -436,3 +436,14 @@ describe("GET /api/users add queries", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id (comment_count)", () => {
+  test("200: should return article with comment count key", () => {
+    const articleId = 6;
+    return request(app)
+      .get(`/api/articles/${articleId}`)
+      .then(({ body: { article } }) => {
+        expect(article.comment_count).toBe(1);
+      });
+  });
+});
