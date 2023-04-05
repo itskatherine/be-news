@@ -442,8 +442,21 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
     const articleId = 6;
     return request(app)
       .get(`/api/articles/${articleId}`)
+      .expect(200)
       .then(({ body: { article } }) => {
         expect(article.comment_count).toBe(1);
+      });
+  });
+});
+
+describe.only("GET /api", () => {
+  test("200: should return endpoints object", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        const { endpoints } = body;
+        expect(endpoints).toBeInstanceOf(Object);
       });
   });
 });
