@@ -369,3 +369,70 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("GET /api/users add queries", () => {
+  test("200: accepts a topic query which filters response by topic", () => {
+    const queriedTopic = "mitch";
+    return request(app)
+      .get(`/api/articles?topic=${queriedTopic}`)
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(11);
+        articles.forEach((article) => {
+          expect(article.topic).toBe(queriedTopic);
+        });
+      });
+  });
+  test("200: accepts a sort_by query which sorts results by a key (default descending)", () => {
+    const sort_by = "votes";
+    return request(app)
+      .get(`/api/articles?sort_by=${sort_by}`)
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(12);
+        expect(articles).toBeSorted({ key: "votes", descending: true });
+      });
+  });
+  test("400: gives error when invalid sort_by given", () => {
+    const sort_by = "katherine";
+    return request(app)
+      .get(`/api/articles?sort_by=${sort_by}`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("200:accepts an order query which changes the order of the returned array", () => {
+    const order = "ASC";
+    return request(app)
+      .get(`/api/articles?order=${order}`)
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(testData.articleData.length);
+        expect(articles).toBeSorted({ key: "created_at", descending: false });
+      });
+  });
+  test("400: gives error when invalid order given", () => {
+    const order = "katherine";
+    return request(app)
+      .get(`/api/articles?order=${order}`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("200: gives empty array back when category exists but has no articles", () => {
+    const topic = "paper";
+    return request(app)
+      .get(`/api/articles?topic=${topic}`)
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toEqual([]);
+      });
+  });
+});
