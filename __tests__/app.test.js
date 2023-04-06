@@ -385,14 +385,14 @@ describe("GET /api/users add queries", () => {
       });
   });
   test("200: accepts a sort_by query which sorts results by a key (default descending)", () => {
-    const sort_by = "votes";
+    const sort_by = "title";
     return request(app)
       .get(`/api/articles?sort_by=${sort_by}`)
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
         expect(articles).toHaveLength(12);
-        expect(articles).toBeSorted({ key: "votes", descending: true });
+        expect(articles).toBeSorted({ key: "title", descending: true });
       });
   });
   test("400: gives error when invalid sort_by given", () => {
